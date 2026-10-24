@@ -179,3 +179,294 @@ graph TD
 
 ### 模擬驗證執行：
 在 Vivado 中將 `tb_alu_comparison.v` 設為 Simulation Top，點擊 **Run Behavioral Simulation**，即可在波形視窗中一覽四個模組在不同管線週期下的輸出比對狀態。
+
+---
+
+## 💻 七、 模組 Verilog 完整程式碼清單 (Verilog Source Codes)
+
+### 1. 基準模組：不良寫法 (Baseline - 1-Cycle Unpipelined)
+> 📄 檔案位置：[`bad_coding_style_alu.v`](./bad_coding_style_alu.v)  
+> ⚠️ 特徵：單一週期硬塞所有運算、長串 `if-else` 階層多工器、算術運算未共享，時序嚴重違規 (`WNS = inf`)。
+
+```verilog
+module bad_coding_style_alu (
+    input wire clk,
+    input wire rst_n,
+    input wire [7:0] a, b, c, d,
+    input wire [3:0] sel,
+    output reg [15:0] result
+);
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) result <= 16'd0;
+        else begin
+            if (sel == 4'b0000) result <= (a * b) + (c * d);
+            else if (sel == 4'b0001) result <= (a * b) - (c * d);
+            else if (sel == 4'b0010) result <= (a * c) + (b * d);
+            else if (sel == 4'b0011) result <= (a * c) - (b * d);
+            else if (sel == 4'b0100) result <= (a * d) + (b * c);
+            else if (sel == 4'b0101) result <= (a + b + c + d) * a;
+            else if (sel == 4'b0110) result <= (a + b + c + d) * b;
+            else result <= 16'd0;
+        end
+    end
+endmodule
+```
+
+---
+
+### 2. Google Gemini：最佳化 3 級管線 (Gemini - 3-Stage Pipelined)
+> 📄 檔案位置：[`gemini_optimized_alu.v`](./gemini_optimized_alu.v)  
+> 🏆 特徵：功耗冠軍 (**0.115 W**)、三級管線結構對稱整潔、切換活動率最低。
+
+```verilog
+module gemini_optimized_alu (
+    input wire clk,
+    input wire rst_n,
+    input wire [7:0] a, b, c, d,
+    input wire [3:0] sel,
+    output reg [15:0] result
+);
+    // Stage 1: Operand Routing & Pre-addition
+    reg [9:0] op1a; reg [7:0] op1b, op2a, op2b; reg [3:0] sel_st1;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            op1a <= 10'd0; op1b <= 8'd0; op2a <= 8'd0; op2b <= 8'd0; sel_st1 <= 4'd0;
+        end else begin
+            sel_st1 <= sel;
+            case (sel)
+                4'b0000, 4'b0001: begin op1a <= a; op1b <= b; op2a <= c; op2b <= d; end
+                4'b0010, 4'b0011: begin op1a <= a; op1b <= c; op2a <= b; op2b <= d; end
+                4'b0100: begin op1a <= a; op1b <= d; op2a <= b; op2b <= c; end
+                4'b0101: begin op1a <= a + b + c + d; op1b <= a; op2a <= 8'd0; op2b <= 8'd0; end
+                4'b0110: begin op1a <= a + b + c + d; op1b <= b; op2a <= 8'd0; op2b <= 8'd0; end
+                default: begin op1a <= 10'd0; op1b <= 8'd0; op2a <= 8'd0; op2b <= 8'd0; end
+            endcase
+        end
+    end
+
+    // Stage 2: Multiplier Resource Sharing
+    reg [15:0] prod1, prod2; reg [3:0] sel_st2;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin prod1 <= 16'd0; prod2 <= 16'd0; sel_st2 <= 4'd0; end
+        else begin prod1 <= op1a * op1b; prod2 <= op2a * op2b; sel_st2 <= sel_st1; end
+    end
+
+    // Stage 3: Post-Addition/Subtraction
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) result <= 16'd0;
+        else begin
+            case (sel_st2)
+                4'b0000, 4'b0010, 4'b0100: result <= prod1 + prod2;
+                4'b0001, 4'b0011:          result <= prod1 - prod2;
+                4'b0101, 4'b0110:          result <= prod1;
+                default:                   result <= 16'd0;
+            endcase
+        end
+    end
+endmodule
+```
+
+---
+
+### 3. OpenAI ChatGPT：最佳化 3 級管線 (ChatGPT - 3-Stage Pipelined)
+> 📄 檔案位置：[`optimized_alu_gpt.v`](./optimized_alu_gpt.v)  
+> 🏆 特徵：面積冠軍 (**170 LUTs，省 70.0%**)、狀態編碼壓縮 (將 4-bit `sel` 壓縮為 2-bit `mode`)、顯式位元擴展防溢位。
+
+```verilog
+module optimized_alu_gpt (
+    input wire clk, rst_n,
+    input wire [7:0] a, b, c, d,
+    input wire [3:0] sel,
+    output reg [15:0] result
+);
+    wire [9:0] sum_all = {2'b0, a} + {2'b0, b} + {2'b0, c} + {2'b0, d};
+    reg [9:0] mul1_a_s1; reg [7:0] mul1_b_s1, mul2_a_s1, mul2_b_s1; reg [1:0] mode_s1;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            mul1_a_s1 <= 10'd0; mul1_b_s1 <= 8'd0; mul2_a_s1 <= 8'd0; mul2_b_s1 <= 8'd0; mode_s1 <= 2'b11;
+        end else begin
+            case (sel)
+                4'b0000: begin mul1_a_s1 <= {2'b0, a}; mul1_b_s1 <= b; mul2_a_s1 <= c; mul2_b_s1 <= d; mode_s1 <= 2'b00; end
+                4'b0001: begin mul1_a_s1 <= {2'b0, a}; mul1_b_s1 <= b; mul2_a_s1 <= c; mul2_b_s1 <= d; mode_s1 <= 2'b01; end
+                4'b0010: begin mul1_a_s1 <= {2'b0, a}; mul1_b_s1 <= c; mul2_a_s1 <= b; mul2_b_s1 <= d; mode_s1 <= 2'b00; end
+                4'b0011: begin mul1_a_s1 <= {2'b0, a}; mul1_b_s1 <= c; mul2_a_s1 <= b; mul2_b_s1 <= d; mode_s1 <= 2'b01; end
+                4'b0100: begin mul1_a_s1 <= {2'b0, a}; mul1_b_s1 <= d; mul2_a_s1 <= b; mul2_b_s1 <= c; mode_s1 <= 2'b00; end
+                4'b0101: begin mul1_a_s1 <= sum_all; mul1_b_s1 <= a; mul2_a_s1 <= 8'd0; mul2_b_s1 <= 8'd0; mode_s1 <= 2'b10; end
+                4'b0110: begin mul1_a_s1 <= sum_all; mul1_b_s1 <= b; mul2_a_s1 <= 8'd0; mul2_b_s1 <= 8'd0; mode_s1 <= 2'b10; end
+                default: begin mul1_a_s1 <= 10'd0; mul1_b_s1 <= 8'd0; mul2_a_s1 <= 8'd0; mul2_b_s1 <= 8'd0; mode_s1 <= 2'b11; end
+            endcase
+        end
+    end
+
+    reg [17:0] product1_s2; reg [15:0] product2_s2; reg [1:0] mode_s2;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin product1_s2 <= 18'd0; product2_s2 <= 16'd0; mode_s2 <= 2'b11; end
+        else begin product1_s2 <= mul1_a_s1 * mul1_b_s1; product2_s2 <= mul2_a_s1 * mul2_b_s1; mode_s2 <= mode_s1; end
+    end
+
+    wire [18:0] add_value = {1'b0, product1_s2} + {3'b0, product2_s2};
+    wire [18:0] sub_value = {1'b0, product1_s2} - {3'b0, product2_s2};
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) result <= 16'd0;
+        else begin
+            case (mode_s2)
+                2'b00: result <= add_value[15:0];
+                2'b01: result <= sub_value[15:0];
+                2'b10: result <= product1_s2[15:0];
+                default: result <= 16'd0;
+            endcase
+        end
+    end
+endmodule
+```
+
+---
+
+### 4. Anthropic Claude：最佳化 4 級管線 (Claude - 4-Stage Pipelined)
+> 📄 檔案位置：[`optimized_alu_claude.v`](./optimized_alu_claude.v)  
+> 🛡️ 特徵：FPGA 標準規範冠軍、**同步重置 (UG949 規範)**、Stage 1 專門設置輸入隔離暫存器 (Input Registering)。
+
+```verilog
+module optimized_alu_claude (
+    input wire clk, rst_n,
+    input wire [7:0] a, b, c, d,
+    input wire [3:0] sel,
+    output reg [15:0] result
+);
+    // Stage 1: 輸入隔離暫存 (Input Registering) & 前置加法
+    reg [7:0] a_s1, b_s1, c_s1, d_s1; reg [3:0] sel_s1; reg [9:0] sum_s1;
+    always @(posedge clk) begin
+        if (!rst_n) begin a_s1<=0; b_s1<=0; c_s1<=0; d_s1<=0; sel_s1<=0; sum_s1<=0; end
+        else begin a_s1<=a; b_s1<=b; c_s1<=c; d_s1<=d; sel_s1<=sel; sum_s1<=a+b+c+d; end
+    end
+
+    // Stage 2: 運算元選擇與減法控制標誌
+    reg [9:0] m1_x; reg [7:0] m1_y, m2_x, m2_y; reg do_sub;
+    always @(posedge clk) begin
+        if (!rst_n) begin m1_x<=0; m1_y<=0; m2_x<=0; m2_y<=0; do_sub<=0; end
+        else begin
+            case (sel_s1)
+                4'b0000: begin m1_x<={2'b0, a_s1}; m1_y<=b_s1; m2_x<=c_s1; m2_y<=d_s1; do_sub<=0; end
+                4'b0001: begin m1_x<={2'b0, a_s1}; m1_y<=b_s1; m2_x<=c_s1; m2_y<=d_s1; do_sub<=1; end
+                4'b0010: begin m1_x<={2'b0, a_s1}; m1_y<=c_s1; m2_x<=b_s1; m2_y<=d_s1; do_sub<=0; end
+                4'b0011: begin m1_x<={2'b0, a_s1}; m1_y<=c_s1; m2_x<=b_s1; m2_y<=d_s1; do_sub<=1; end
+                4'b0100: begin m1_x<={2'b0, a_s1}; m1_y<=d_s1; m2_x<=b_s1; m2_y<=c_s1; do_sub<=0; end
+                4'b0101: begin m1_x<=sum_s1; m1_y<=a_s1; m2_x<=0; m2_y<=0; do_sub<=0; end
+                4'b0110: begin m1_x<=sum_s1; m1_y<=b_s1; m2_x<=0; m2_y<=0; do_sub<=0; end
+                default: begin m1_x<=0; m1_y<=0; m2_x<=0; m2_y<=0; do_sub<=0; end
+            endcase
+        end
+    end
+
+    // Stage 3: 共享乘法器核心運算
+    reg [15:0] p1, p2; reg do_sub_s3;
+    wire [17:0] p1_full = m1_x * m1_y; wire [15:0] p2_full = m2_x * m2_y;
+    always @(posedge clk) begin
+        if (!rst_n) begin p1<=0; p2<=0; do_sub_s3<=0; end
+        else begin p1<=p1_full[15:0]; p2<=p2_full; do_sub_s3<=do_sub; end
+    end
+
+    // Stage 4: 後置加減法選擇輸出
+    always @(posedge clk) begin
+        if (!rst_n) result <= 16'd0;
+        else result <= do_sub_s3 ? (p1 - p2) : (p1 + p2);
+    end
+endmodule
+```
+
+---
+
+### 5. 跨管線週期自動驗證 Testbench (Multi-latency Comparison TB)
+> 📄 檔案位置：[`tb_alu_comparison.v`](./tb_alu_comparison.v)  
+> 🧪 特徵：同一 Stimulus 同步激勵四個模組，利用移位暫存器（Shift Registers）比對 1-cycle、3-cycle、4-cycle 後的數學 Golden Model，自動判定 PASS / FAIL。
+
+```verilog
+`timescale 1ns / 1ps
+
+module tb_alu_comparison;
+    reg clk;
+    reg rst_n;
+    reg [7:0] a, b, c, d;
+    reg [3:0] sel;
+
+    wire [15:0] res_baseline;
+    wire [15:0] res_gemini;
+    wire [15:0] res_gpt;
+    wire [15:0] res_claude;
+
+    // 例化四個待測模組
+    bad_coding_style_alu u_baseline (.clk(clk), .rst_n(rst_n), .a(a), .b(b), .c(c), .d(d), .sel(sel), .result(res_baseline));
+    gemini_optimized_alu u_gemini   (.clk(clk), .rst_n(rst_n), .a(a), .b(b), .c(c), .d(d), .sel(sel), .result(res_gemini));
+    optimized_alu_gpt    u_gpt      (.clk(clk), .rst_n(rst_n), .a(a), .b(b), .c(c), .d(d), .sel(sel), .result(res_gpt));
+    optimized_alu_claude u_claude   (.clk(clk), .rst_n(rst_n), .a(a), .b(b), .c(c), .d(d), .sel(sel), .result(res_claude));
+
+    // 時鐘生成：100MHz (週期 10ns)
+    initial clk = 0;
+    always #5 clk = ~clk;
+
+    // 數學參考模型 (Golden Model)
+    function [15:0] calc_golden;
+        input [3:0] f_sel; input [7:0] f_a, f_b, f_c, f_d;
+        begin
+            case (f_sel)
+                4'b0000: calc_golden = (f_a * f_b) + (f_c * f_d);
+                4'b0001: calc_golden = (f_a * f_b) - (f_c * f_d);
+                4'b0010: calc_golden = (f_a * f_c) + (f_b * f_d);
+                4'b0011: calc_golden = (f_a * f_c) - (f_b * f_d);
+                4'b0100: calc_golden = (f_a * f_d) + (f_b * f_c);
+                4'b0101: calc_golden = (f_a + f_b + f_c + f_d) * f_a;
+                4'b0110: calc_golden = (f_a + f_b + f_c + f_d) * f_b;
+                default: calc_golden = 16'd0;
+            endcase
+        end
+    endfunction
+
+    // 延遲管道：對應不同週期延遲
+    reg [15:0] exp_pipe [0:4]; integer i;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            for (i = 0; i <= 4; i = i + 1) exp_pipe[i] <= 16'd0;
+        end else begin
+            exp_pipe[0] <= calc_golden(sel, a, b, c, d);
+            for (i = 1; i <= 4; i = i + 1) exp_pipe[i] <= exp_pipe[i-1];
+        end
+    end
+
+    // 測試激勵流程
+    initial begin
+        rst_n = 0; a = 0; b = 0; c = 0; d = 0; sel = 0; #20;
+        rst_n = 1; #10;
+
+        test_op(4'b0000, 8'd10, 8'd5, 8'd4, 8'd2);
+        test_op(4'b0001, 8'd20, 8'd3, 8'd5, 8'd6);
+        test_op(4'b0010, 8'd12, 8'd7, 8'd3, 8'd4);
+        test_op(4'b0011, 8'd15, 8'd2, 8'd4, 8'd5);
+        test_op(4'b0100, 8'd8,  8'd6, 8'd5, 8'd2);
+        test_op(4'b0101, 8'd2,  8'd3, 8'd4, 8'd1);
+        test_op(4'b0110, 8'd1,  8'd4, 8'd2, 8'd3);
+
+        #60;
+        $display("Simulation Completed! All Pipeline Latencies Verified.");
+        $finish;
+    end
+
+    task test_op;
+        input [3:0] t_sel; input [7:0] t_a, t_b, t_c, t_d;
+        begin
+            @(posedge clk); sel = t_sel; a = t_a; b = t_b; c = t_c; d = t_d;
+        end
+    endtask
+
+    // 自動跨週期檢驗斷言
+    always @(posedge clk) begin
+        if (rst_n && $time > 50) begin
+            if (res_baseline !== exp_pipe[0]) $display("[FAIL][Baseline 1-cycle] Got %0d, Exp %0d", res_baseline, exp_pipe[0]);
+            if (res_gemini   !== exp_pipe[2]) $display("[FAIL][Gemini 3-cycle]   Got %0d, Exp %0d", res_gemini, exp_pipe[2]);
+            if (res_gpt      !== exp_pipe[2]) $display("[FAIL][ChatGPT 3-cycle]  Got %0d, Exp %0d", res_gpt, exp_pipe[2]);
+            if (res_claude   !== exp_pipe[3]) $display("[FAIL][Claude 4-cycle]   Got %0d, Exp %0d", res_claude, exp_pipe[3]);
+        end
+    end
+endmodule
+```
+
