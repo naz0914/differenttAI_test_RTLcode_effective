@@ -470,3 +470,37 @@ module tb_alu_comparison;
 endmodule
 ```
 
+---
+
+## 🏁 八、 實驗結論與工程反思 (Conclusions & Architectural Insights)
+
+### 1. 實驗核心結論
+本作業透過 **Xilinx Vivado 2023.2** 於 **Zynq-7000 FPGA (`xc7z020`)** 平台，全面驗證了三大生成式 AI 輔助硬體 RTL 最佳化的實務效能，得出以下核心結論：
+
+1. **破除不良編程風格的時序枷鎖：**  
+   * 原始 Baseline 模組因未管線化、長串 `if-else` 階層多工器與運算子重複，在 100MHz (10ns) 約束下發生嚴重的 Setup Time 違規（$WNS = \text{inf}$），硬體頻率完全無法達標。
+   * **最佳化成效：** 三家 AI 模型均成功突破關鍵路徑瓶頸，將時序收斂至 **$WNS = +3.828\text{ ns}$**（等效最高頻率提升至 **$162.0\text{ MHz}$**），且大幅精簡邏輯閘面積達 **65.8% ~ 70.0%**，展現出生成式 AI 在數位電路重構上的高度實用價值。
+
+2. **三大 AI 模型之微架構風格深度對比：**
+   * **OpenAI ChatGPT（面積極致壓縮冠軍 🥇）：**  
+     展現出敏銳的硬體直覺，在 Stage 1 獨創性地將 4-bit `sel` 壓縮編碼為 2-bit `mode` 傳遞過流水線，以最低的暫存器開銷換取最大的面積收益，**Slice LUT 僅需 170 個（節省 70.0%）**，極度適合 ASIC / FPGA 晶片面積受限的極致設計。
+   * **Google Gemini（低功耗控制冠軍 🥇）：**  
+     流水線結構最為整潔直觀、高度對稱（路由 $\rightarrow$ 共享乘法 $\rightarrow$ 後處理加減），無多餘的狀態跳轉與擾動，使得信號切換活動率（Switching Activity）最低，**總晶片功耗達到全場最低的 0.115 W**，最適合行動裝置或電池供電的低功耗物聯網晶片。
+   * **Anthropic Claude（FPGA 原生規範冠軍 🥇）：**  
+     唯一主動採用 **同步重置 (Synchronous Reset)** 並建立 **輸入隔離暫存 (Input Registering)** 的模型，完全遵循 Xilinx 官方 *UltraFast Design Methodology (UG949)* 最佳實務。雖因 4 級管線在 100MHz 下略顯 Over-pipelining（暫存器 96 個），但其防禦性設計在未來推升至 200MHz+ 超高頻時具備最佳的時序彈性。
+
+---
+
+### 2. 硬體工程反思與設計權衡 (Hardware Trade-offs)
+* **延遲週期與時脈頻率的代價（Latency vs. Throughput）：**  
+  AI 雖然大幅提升了時鐘頻率（$F_{max}$ 提升超過 60%）並消除了時序違規，但將運算延遲由原始的 1 cycle 拉長至 **3 cycles (GPT/Gemini)** 或 **4 cycles (Claude)**。這警惕硬體工程師：在系統層次整合時，不可盲目將 AI 生成代碼直接替換，必須同步更新上游/下游的握手協定（Valid/Ready）與狀態機控制。
+* **EDA 合成機制的物理邊界：**  
+  三款 AI 的 WNS 均剛好停在 $+3.828\text{ ns}$，揭示了 Vivado 合成工具在達到目標時序裕度（Slack > 0）後會停止進一步激進重構的工程特性，同時也凸顯了 DSP48E1 專用硬體走線至 Slice 組合邏輯的物理傳遞延遲極限。
+
+---
+
+### 3. 未來研究與延伸方向
+1. **極限頻率探索 (Frequency Scaling)：** 將時脈約束逐步提升至 150MHz、200MHz 與 250MHz，驗證 Claude 4 級管線與同步重置在超高頻下的潛在優勢。
+2. **自動化驗證機制 (Automated Verification)：** 結合 SystemVerilog 與 UVM 框架，利用生成式 AI 自動產出隨機激勵與 Assertions，建構更全面的驗證閉環。
+
+
