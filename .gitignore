@@ -1,0 +1,17 @@
+# Vivado & EDA temporary files
+*.jou
+*.log
+*.str
+*.backup
+.Xil/
+*.dmp
+*.pb
+*.wdb
+*.vcd
+xvlog.pb
+xelab.pb
+xsim.dir/
+
+# OS generated files
+.DS_Store
+Thumbs.db
