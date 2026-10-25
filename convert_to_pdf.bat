@@ -1,29 +1,29 @@
 @echo off
 chcp 65001 >nul
 echo ========================================================
-echo   正在生成 7114068027.pdf ...
+echo   正在使用 Edge/Chrome 引擎渲染生成 7114068027.pdf ...
 echo ========================================================
 
 set "HTML_PATH=%~dp07114068027.html"
 set "PDF_PATH=%~dp07114068027.pdf"
 
-:: 優先使用 Windows 內建 Microsoft Edge (100% 存在於 Win10/Win11)
+:: 優先使用 Windows 內建 Microsoft Edge (現代 new headless 引擎)
 if exist "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
-    echo [1/2] 呼叫 Microsoft Edge 引擎渲染輸出...
-    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf="%PDF_PATH%" "%HTML_PATH%"
+    echo [1/2] 呼叫 Microsoft Edge 引擎輸出高畫質 PDF...
+    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --headless=new --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf-no-header --print-to-pdf="%PDF_PATH%" "%HTML_PATH%"
     goto CHECK_RESULT
 )
 
 if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
-    echo [1/2] 呼叫 Microsoft Edge 引擎渲染輸出...
-    "C:\Program Files\Microsoft\Edge\Application\msedge.exe" --headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf="%PDF_PATH%" "%HTML_PATH%"
+    echo [1/2] 呼叫 Microsoft Edge 引擎輸出高畫質 PDF...
+    "C:\Program Files\Microsoft\Edge\Application\msedge.exe" --headless=new --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf-no-header --print-to-pdf="%PDF_PATH%" "%HTML_PATH%"
     goto CHECK_RESULT
 )
 
 :: 備用 Google Chrome
 if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
-    echo [1/2] 呼叫 Google Chrome 引擎渲染輸出...
-    "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf="%PDF_PATH%" "%HTML_PATH%"
+    echo [1/2] 呼叫 Google Chrome 引擎輸出高畫質 PDF...
+    "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf-no-header --print-to-pdf="%PDF_PATH%" "%HTML_PATH%"
     goto CHECK_RESULT
 )
 
