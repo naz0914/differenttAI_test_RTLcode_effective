@@ -3,281 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7114068027 - HW1 RTL Synthesis Coding Style 最佳化評估報告</title>
+    <title>7114068027 - RTL Synthesis Coding Style 最佳化評估正式報告</title>
     <style>
         @page {
             size: A4;
-            margin: 20mm 15mm 20mm 15mm;
+            margin: 15mm 12mm 15mm 12mm;
         }
+        :root {
+            --primary: #0969da;
+            --primary-dark: #054da7;
+            --primary-light: #ddf4ff;
+            --success: #1a7f37;
+            --success-bg: #dafbe1;
+            --danger: #cf222e;
+            --danger-bg: #ffebe9;
+            --warning: #9a6700;
+            --warning-bg: #fff8c5;
+            --text-main: #1f2328;
+            --text-muted: #57606a;
+            --bg-page: #f6f8fa;
+            --bg-card: #ffffff;
+            --border: #d0d7de;
+        }
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", "PingFang TC", sans-serif;
-            color: #24292f;
+            color: var(--text-main);
+            background-color: var(--bg-page);
             line-height: 1.6;
             margin: 0;
-            padding: 40px;
-            background-color: #f6f8fa;
+            padding: 30px 15px;
         }
-        .container {
-            max-width: 960px;
+        .report-wrapper {
+            max-width: 1020px;
             margin: 0 auto;
-            background: #ffffff;
-            padding: 50px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+            padding: 45px 50px;
         }
-        .header {
-            border-bottom: 2px solid #0969da;
-            padding-bottom: 20px;
+
+        /* 頂部 Header & 封面風格 */
+        .cover-header {
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 25px;
             margin-bottom: 30px;
+            position: relative;
         }
-        h1 {
-            color: #0969da;
+        .badge-course {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        h1.doc-title {
+            color: #0b1f3a;
             font-size: 26px;
-            margin-top: 0;
-            line-height: 1.3;
+            font-weight: 800;
+            line-height: 1.35;
+            margin: 0 0 10px 0;
         }
-        .meta-grid {
+        .doc-subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 22px;
+        }
+        .meta-dashboard {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
-            background: #f1f8ff;
+            background: #f8fafc;
+            border: 1px solid var(--border);
             padding: 16px 20px;
-            border-radius: 6px;
-            border-left: 4px solid #0969da;
-            font-size: 14px;
-            margin-bottom: 25px;
+            border-radius: 8px;
         }
-        .meta-item strong {
-            color: #1f2328;
+        .meta-col {
+            font-size: 13px;
         }
-        .student-id {
-            color: #cf222e;
-            font-weight: bold;
+        .meta-label {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .meta-val {
+            font-weight: 700;
+            color: #0b1f3a;
+        }
+        .meta-val.student-id {
+            color: #d1242f;
             font-size: 16px;
         }
-        h2 {
-            color: #1f2328;
-            border-bottom: 1px solid #d0d7de;
-            padding-bottom: 8px;
-            margin-top: 35px;
-            font-size: 20px;
+
+        /* 關鍵數據亮點卡片 (KPI Dashboard) */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin: 28px 0;
         }
-        h3 {
-            color: #0969da;
-            margin-top: 25px;
-            font-size: 16px;
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        table {
+        .kpi-card.green { border-top-color: var(--success); }
+        .kpi-card.purple { border-top-color: #8250df; }
+        .kpi-card.orange { border-top-color: #d97706; }
+        .kpi-num {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0b1f3a;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .kpi-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .kpi-desc {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* 章節通用標題 */
+        h2.sec-heading {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0b1f3a;
+            border-left: 5px solid var(--primary);
+            padding-left: 12px;
+            margin: 35px 0 16px 0;
+            display: flex;
+            align-items: center;
+        }
+        h3.sub-heading {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 20px 0 10px 0;
+        }
+
+        /* 表格精緻化樣式 (三線表進階版) */
+        table.custom-table {
             width: 100%;
-            border-collapse: collapse;
-            margin: 18px 0;
-            font-size: 13.5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 14px 0 24px 0;
+            font-size: 13px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
             page-break-inside: avoid;
         }
-        th, td {
-            border: 1px solid #d0d7de;
-            padding: 10px 12px;
+        table.custom-table th {
+            background: #f8fafc;
+            color: #0b1f3a;
+            font-weight: 700;
+            padding: 11px 14px;
+            border-bottom: 2px solid var(--border);
             text-align: left;
         }
-        th {
-            background-color: #f6f8fa;
-            color: #1f2328;
+        table.custom-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #eaecef;
+            vertical-align: middle;
+        }
+        table.custom-table tr:last-child td { border-bottom: none; }
+        table.custom-table tr:hover { background-color: #f6f8fa; }
+        .cell-win {
+            background-color: var(--success-bg) !important;
+            color: var(--success);
+            font-weight: 700;
+        }
+        .cell-fail {
+            background-color: var(--danger-bg) !important;
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        /* 標籤 Pill */
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11.5px;
             font-weight: 600;
         }
-        tr:nth-child(even) {
-            background-color: #fbfcfd;
-        }
-        .highlight-win {
-            background-color: #dafbe1 !important;
-            font-weight: bold;
-            color: #1a7f37;
-        }
-        .highlight-fail {
-            background-color: #ffebe9 !important;
-            font-weight: bold;
-            color: #cf222e;
-        }
-        pre {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            padding: 16px;
-            border-radius: 6px;
-            overflow-x: auto;
-            font-family: Consolas, "Courier New", monospace;
-            font-size: 12px;
-            line-height: 1.45;
+        .pill-success { background: var(--success-bg); color: var(--success); }
+        .pill-danger { background: var(--danger-bg); color: var(--danger); }
+        .pill-info { background: var(--primary-light); color: var(--primary-dark); }
+
+        /* 圖表條形可視化 (Modern Progress Bars) */
+        .bar-chart-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin: 16px 0 24px 0;
             page-break-inside: avoid;
-            margin: 15px 0;
         }
-        .bar-container {
-            background-color: #24292e;
-            color: #58a6ff;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-family: Consolas, monospace;
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        .bar-name {
+            width: 130px;
+            font-weight: 600;
+            color: #0b1f3a;
+        }
+        .bar-track {
+            flex: 1;
+            height: 18px;
+            background: #eef2f6;
+            border-radius: 9px;
+            overflow: hidden;
+            margin: 0 14px;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 9px;
+            transition: width 0.3s ease;
+        }
+        .bar-val {
+            width: 160px;
+            text-align: right;
+            font-weight: 700;
             font-size: 12.5px;
-            line-height: 1.6;
-            margin: 15px 0;
+        }
+
+        /* 深度技術問答卡片 */
+        .qa-card {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13px;
             page-break-inside: avoid;
+        }
+        .qa-q {
+            font-weight: 800;
+            color: #0b1f3a;
+            margin-bottom: 6px;
+            font-size: 13.5px;
+        }
+        .qa-a {
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* 實測截圖展示卡片 */
+        .gallery-block {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+            margin: 18px 0 24px 0;
+            page-break-inside: avoid;
+        }
+        .gallery-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0b1f3a;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin: 15px 0 25px 0;
-            page-break-inside: avoid;
         }
-        .gallery-item {
-            border: 1px solid #d0d7de;
+        .gallery-thumb {
+            border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 8px;
-            background: #ffffff;
+            padding: 6px;
+            background: #fafbfc;
             text-align: center;
         }
-        .gallery-item img {
+        .gallery-thumb img {
             width: 100%;
             height: auto;
             border-radius: 4px;
-            border: 1px solid #eaeef2;
+            border: 1px solid #eaecef;
         }
-        .gallery-item span {
+        .gallery-thumb span {
             display: block;
-            font-size: 12px;
-            color: #57606a;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
             margin-top: 6px;
-            font-weight: 500;
         }
+
+        /* 列印懸浮按鈕 */
         .btn-print {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #1f883d;
+            background: linear-gradient(135deg, #1f883d 0%, #116329 100%);
             color: white;
             border: none;
             padding: 14px 24px;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
             z-index: 9999;
+            transition: all 0.2s ease;
         }
         .btn-print:hover {
-            background: #1a7f37;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(0,0,0,0.3);
         }
-        .tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .tag-success { background: #dafbe1; color: #1a7f37; }
-        .tag-warning { background: #fff8c5; color: #9a6700; }
-        .tag-danger { background: #ffebe9; color: #cf222e; }
 
         @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .container {
-                box-shadow: none;
-                padding: 0;
-                max-width: 100%;
-            }
-            .btn-print {
-                display: none;
-            }
-            h2 {
-                page-break-before: auto;
-            }
-            table, pre, .bar-container, .gallery-grid {
-                page-break-inside: avoid;
-            }
+            body { background: white; padding: 0; }
+            .report-wrapper { box-shadow: none; padding: 0; max-width: 100%; }
+            .btn-print { display: none; }
+            .custom-table, .bar-chart-card, .qa-card, .gallery-block { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
 
-<button class="btn-print" onclick="window.print()">🖨️ 點擊另存為 PDF</button>
+<button class="btn-print" onclick="window.print()">🖨️ 列印 / 另存為 PDF</button>
 
-<div class="container">
-    <div class="header">
-        <h1>作業一報告：驗證不同生成式 AI 對於最佳化 RTL Synthesis Coding Style 之硬體效能評估</h1>
-        <div class="meta-grid">
-            <div class="meta-item"><strong>學生學號：</strong> <span class="student-id">7114068027</span></div>
-            <div class="meta-item"><strong>目標晶片：</strong> Xilinx Zynq-7000 (<code>xc7z020clg400-1</code>)</div>
-            <div class="meta-item"><strong>EDA 工具：</strong> Xilinx Vivado 2023.2 (16 Parallel Threads)</div>
-            <div class="meta-item"><strong>時序約束：</strong> 100MHz (Period: 10.000 ns, WNS &ge; 0 ns)</div>
-            <div class="meta-item"><strong>評測模型：</strong> OpenAI ChatGPT vs Google Gemini vs Anthropic Claude</div>
-            <div class="meta-item"><strong>GitHub 專案：</strong> <a href="https://github.com/naz0914/differenttAI_test_RTLcode_effective" target="_blank">differenttAI_test_RTLcode_effective</a></div>
+<div class="report-wrapper">
+
+    <!-- 頂部封面區 -->
+    <div class="cover-header">
+        <span class="badge-course">硬體描述語言與數位系統 ｜ 作業一正式報告</span>
+        <h1 class="doc-title">驗證不同生成式 AI 最佳化 RTL Synthesis Coding Style 之硬體效能評估報告</h1>
+        <div class="doc-subtitle">Evaluating Generative AI Models on RTL Synthesis Coding Style Optimization</div>
+        
+        <div class="meta-dashboard">
+            <div class="meta-col">
+                <div class="meta-label">學生學號</div>
+                <div class="meta-val student-id">7114068027</div>
+            </div>
+            <div class="meta-col">
+                <div class="meta-label">目標硬體晶片</div>
+                <div class="meta-val">Xilinx Zynq-7000 (xc7z020)</div>
+            </div>
+            <div class="meta-col">
+                <div class="meta-label">EDA 合成工具</div>
+                <div class="meta-val">Vivado 2023.2 (16-Threads)</div>
+            </div>
+            <div class="meta-col">
+                <div class="meta-label">時序約束目標</div>
+                <div class="meta-val">100 MHz (Period: 10ns)</div>
+            </div>
         </div>
     </div>
 
-    <h2>一、 實驗目標與教授指派規範達成檢核</h2>
-    <p>本實驗旨在評估三大主流生成式 AI 在硬體描述語言（Verilog HDL）中，針對不良 RTL Coding Style 進行重構與最佳化的實體 PPA 效能。以下為教授指定步驟的檢核清單：</p>
-    <table>
+    <!-- 關鍵指標儀表板 (KPI Dashboard) -->
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-num">-70.0%</div>
+            <div class="kpi-title">LUT 面積最大減幅</div>
+            <div class="kpi-desc">ChatGPT (170 LUTs 奪冠)</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-num">0.115 W</div>
+            <div class="kpi-title">晶片總功耗全場最低</div>
+            <div class="kpi-desc">Gemini (動態切換率最低)</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-num">162.0 MHz</div>
+            <div class="kpi-title">時序修復極限頻率</div>
+            <div class="kpi-desc">WNS 從違規大幅收斂至 +3.828ns</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-num">UG949</div>
+            <div class="kpi-title">FPGA 原生規範性</div>
+            <div class="kpi-desc">Claude (同步重置+輸入暫存)</div>
+        </div>
+    </div>
+
+    <!-- 一、 規範檢核 -->
+    <h2 class="sec-heading">一、 教授指定實驗步驟達成檢核清單</h2>
+    <table class="custom-table">
         <thead>
             <tr>
-                <th>實驗項目</th>
-                <th>教授指定要求</th>
-                <th>達成狀態</th>
-                <th>執行成果說明</th>
+                <th style="width: 14%;">實驗步驟</th>
+                <th style="width: 36%;">教授指派要求</th>
+                <th style="width: 15%;">達成狀態</th>
+                <th style="width: 35%;">具體執行與量化成果</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>Step 1</strong></td>
-                <td>使用三大頂尖生成式 AI (ChatGPT, Gemini, Claude)</td>
-                <td><span class="tag tag-success">100% 達成</span></td>
-                <td>採用統一規格之 Prompt 同步約束三家模型重構</td>
+                <td>評估三大生成式 AI (ChatGPT, Gemini, Claude)</td>
+                <td><span class="pill pill-success">100% 達成</span></td>
+                <td>統一 Prompt 約束三款模型重構 RTL 並消除不良寫法</td>
             </tr>
             <tr>
                 <td><strong>Step 2</strong></td>
                 <td>使用 Xilinx Vivado 驗證 RTL Synthesis 硬體效能</td>
-                <td><span class="tag tag-success">100% 達成</span></td>
-                <td>於 Vivado 2023.2 提取實際 PPA 數據（LUT, DSP, Reg, WNS, Power）</td>
+                <td><span class="pill pill-success">100% 達成</span></td>
+                <td>於本地端 Vivado 2023.2 完成編譯並提取真實 PPA 數據</td>
             </tr>
             <tr>
                 <td><strong>步驟 1</strong></td>
-                <td>建立基準 (Baseline)：取得最差情況 PPA</td>
-                <td><span class="tag tag-success">100% 達成</span></td>
-                <td>完成未管線化 Baseline 合成，證實單週期時序違規 (WNS=inf)</td>
+                <td>建立基準 (Baseline)：取得最差情況 PPA 數據</td>
+                <td><span class="pill pill-success">100% 達成</span></td>
+                <td>完成未管線化 ALU 合成，證實單週期時序違規 (WNS=inf)</td>
             </tr>
             <tr>
                 <td><strong>步驟 2</strong></td>
-                <td>AI 重構三大目標：資源共享、管線化、邏輯結構優化</td>
-                <td><span class="tag tag-success">100% 達成</span></td>
-                <td>實現乘法器/DSP 共享、3~4 級流水線切分、長串 if-else 轉為 case</td>
+                <td>AI 重構三大目標：資源共享、管線化、邏輯平坦化</td>
+                <td><span class="pill pill-success">100% 達成</span></td>
+                <td>實現乘法器共享、3~4 級流水線切分、長串 if-else 改寫為 case</td>
             </tr>
             <tr>
                 <td><strong>步驟 3</strong></td>
                 <td>合成與 PPA 提取：Set as Top 逐一提取並交叉比對</td>
-                <td><span class="tag tag-success">100% 達成</span></td>
-                <td>提取客觀數據，繪製條形圖並解析走線機制</td>
+                <td><span class="pill pill-success">100% 達成</span></td>
+                <td>取得 WNS、LUT、DSP 與功耗數據，完成多維度分析</td>
             </tr>
             <tr>
                 <td><strong>步驟 4</strong></td>
                 <td>驗證與報告：撰寫架構分析結論與 Testbench 驗證</td>
-                <td><span class="tag tag-success">100% 達成</span></td>
-                <td>完成多週期比對 tb_alu_comparison.v 與本正式報告</td>
+                <td><span class="pill pill-success">100% 達成</span></td>
+                <td>撰寫 tb_alu_comparison.v 跨週期驗證與本正式總結報告</td>
             </tr>
         </tbody>
     </table>
 
-    <h2>二、 基準模組 (Baseline) 不良風格深度診斷</h2>
-    <p>原始 <code>bad_coding_style_alu</code> 存在典型的不良硬體編程風格：</p>
-    <ol>
-        <li><strong>優先權編碼器鏈（Cascaded Priority Encoder）：</strong> 長串巢狀 <code>if-else</code> 合成出深層 MUX 鏈條，邏輯閘層數暴增。</li>
-        <li><strong>算術資源未共享（Lack of Resource Sharing）：** 各分支獨立宣告乘法（<code>a*b</code>, <code>c*d</code>, <code>a*c</code>...），浪費 DSP 與加法樹。</li>
-        <li><strong>單週期無管線化（Single-cycle Bottleneck）：** 輸入到輸出壓縮在單一週期，導致 100MHz 下時序嚴重違規（<code>WNS = inf</code>）。</li>
-    </ol>
+    <!-- 二、 Baseline 不良風格分析 -->
+    <h2 class="sec-heading">二、 基準模組 (Baseline) 不良風格深度診斷</h2>
+    <p style="font-size: 13.5px; color: #334155;">
+        原始 <code>bad_coding_style_alu</code> 充滿了數位電路設計中經典的致命錯誤，直接導致 Vivado 合成器產出效能極差的硬體架構：
+    </p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0;">
+        <div style="background: #fff5f5; border: 1px solid #ffd1d5; border-radius: 8px; padding: 14px;">
+            <div style="font-weight: 800; color: #cf222e; margin-bottom: 6px;">❌ 階層式優先權編碼鏈</div>
+            <div style="font-size: 12.5px; color: #57606a;">使用深層巢狀 <code>if-else</code>，底層合成出數十級多工器串接鏈，邏輯閘層數暴增。</div>
+        </div>
+        <div style="background: #fff5f5; border: 1px solid #ffd1d5; border-radius: 8px; padding: 14px;">
+            <div style="font-weight: 800; color: #cf222e; margin-bottom: 6px;">❌ 算術資源極度浪費</div>
+            <div style="font-size: 12.5px; color: #57606a;">各分支獨立宣告乘法運算（<code>a*b</code>, <code>c*d</code>...），無法共用 DSP 乘法硬體，白白浪費 2 顆 DSP。</div>
+        </div>
+        <div style="background: #fff5f5; border: 1px solid #ffd1d5; border-radius: 8px; padding: 14px;">
+            <div style="font-weight: 800; color: #cf222e; margin-bottom: 6px;">❌ 單週期超長路徑崩潰</div>
+            <div style="font-size: 12.5px; color: #57606a;">加法、乘法、加減法全部硬塞在單一週期，100MHz 下時序嚴重違規（<code>WNS = inf</code>）。</div>
+        </div>
+    </div>
 
-    <h2>三、 Vivado 實測合成 PPA 數據綜合比較</h2>
-    <table>
+    <!-- 三、 PPA 數據綜合比對 -->
+    <h2 class="sec-heading">三、 Vivado 實測合成 PPA 數據綜合比對與視覺化</h2>
+    <table class="custom-table">
         <thead>
             <tr>
                 <th>模組版本</th>
@@ -288,358 +480,330 @@
                 <th>WNS (ns)</th>
                 <th>等效最高頻率</th>
                 <th>總晶片功耗 (W)</th>
-                <th>優化亮點與特徵</th>
+                <th>架構特徵與獲獎亮點</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Baseline (基準)</strong></td>
+                <td>1 cycle</td>
+                <td>567</td>
+                <td>2</td>
+                <td>16</td>
+                <td class="cell-fail">inf (違規)</td>
+                <td>崩潰 (&lt;100MHz)</td>
+                <td>0.122</td>
+                <td>未管線化、邏輯深度大、階層多工器鏈</td>
+            </tr>
+            <tr>
+                <td><strong>OpenAI ChatGPT</strong></td>
+                <td>3 cycles</td>
+                <td class="cell-win">170 (省 70.0%)</td>
+                <td>1</td>
+                <td>71</td>
+                <td class="cell-win">+3.828</td>
+                <td>~162.0 MHz</td>
+                <td>0.116</td>
+                <td>🥇 <strong>LUT 面積冠軍</strong>：狀態壓縮編碼 (2-bit mode)</td>
+            </tr>
+            <tr>
+                <td><strong>Google Gemini</strong></td>
+                <td>3 cycles</td>
+                <td>177</td>
+                <td>1</td>
+                <td>75</td>
+                <td class="cell-win">+3.828</td>
+                <td>~162.0 MHz</td>
+                <td class="cell-win">0.115 (最低)</td>
+                <td>🥇 <strong>低功耗冠軍</strong>：對稱規整三級管線，切換率最低</td>
+            </tr>
+            <tr>
+                <td><strong>Anthropic Claude</strong></td>
+                <td>4 cycles</td>
+                <td>194</td>
+                <td>1</td>
+                <td>96</td>
+                <td class="cell-win">+3.828</td>
+                <td>~162.0 MHz</td>
+                <td>0.122</td>
+                <td>🥇 <strong>FPGA 規範冠軍</strong>：同步重置 + 輸入隔離 (UG949)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 視覺化條形圖 -->
+    <div class="bar-chart-card">
+        <div style="font-weight: 700; color: #0b1f3a; margin-bottom: 12px; font-size: 13.5px;">📊 邏輯閘面積 (Slice LUTs) 量化差距比對（越少越佳 🔻）</div>
+        
+        <div class="bar-row">
+            <div class="bar-name">Baseline (不良寫法)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #cf222e;"></div></div>
+            <div class="bar-val" style="color: #cf222e;">567 LUTs (100.0%)</div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-name">ChatGPT (OpenAI)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 30.0%; background: #1a7f37;"></div></div>
+            <div class="bar-val" style="color: #1a7f37;">170 LUTs (-70.0% 最優)</div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-name">Gemini (Google)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 31.2%; background: #0969da;"></div></div>
+            <div class="bar-val" style="color: #0969da;">177 LUTs (-68.8%)</div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-name">Claude (Anthropic)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 34.2%; background: #8250df;"></div></div>
+            <div class="bar-val" style="color: #8250df;">194 LUTs (-65.8%)</div>
+        </div>
+
+        <div style="font-weight: 700; color: #0b1f3a; margin: 20px 0 12px 0; font-size: 13.5px;">⚡ 總晶片功耗 (Total On-Chip Power) 量化差距比對（越低越佳 🔻）</div>
+        <div class="bar-row">
+            <div class="bar-name">Baseline (不良寫法)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #cf222e;"></div></div>
+            <div class="bar-val" style="color: #cf222e;">0.122 W (100.0%)</div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-name">ChatGPT (OpenAI)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 95.1%; background: #0969da;"></div></div>
+            <div class="bar-val" style="color: #0969da;">0.116 W (-4.9%)</div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-name">Gemini (Google)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 94.3%; background: #1a7f37;"></div></div>
+            <div class="bar-val" style="color: #1a7f37;">0.115 W (-5.7% 最優)</div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-name">Claude (Anthropic)</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #8250df;"></div></div>
+            <div class="bar-val" style="color: #8250df;">0.122 W (時鐘樹開銷稍高)</div>
+        </div>
+    </div>
+
+    <!-- 四、 深度技術問答 -->
+    <h2 class="sec-heading">四、 頂尖工程師微架構與 EDA 合成機理解析</h2>
+    
+    <div class="qa-card">
+        <div class="qa-q">Q1: 為什麼三款 AI 重構後的 WNS 恰好都是 +3.828 ns？</div>
+        <div class="qa-a">
+            在 $T_{clk} = 10.000\text{ ns}$ (100MHz) 的約束下，$\text{Slack} = +3.828\text{ ns}$ 代表關鍵路徑延遲為 $10 - 3.828 = 6.172\text{ ns}$（換算等效最高運作頻率約為 <strong>162.0 MHz</strong>）。三家 AI 在 Stage 2 至 Stage 3 均為「DSP48 乘法 &rarr; Slice 加減選擇 &rarr; 暫存器輸出」。在 Zynq-7000 (-1 速度等級) 架構下，由專用 DSP 走線至通用 Slice LUT 加減法器的物理路徑已成為固有硬體瓶頸。因為 100MHz 約束較寬鬆，Vivado 只要達成時序收斂（Slack &gt; 0）便滿足目標並停止激進重構，因此三者收斂於相同的最差路徑節點。
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <div class="qa-q">Q2: 為什麼 ChatGPT 的 LUT 面積最省 (170 LUTs)？</div>
+        <div class="qa-a">
+            ChatGPT 展現出高度的微架構直覺：輸入控制碼 <code>sel</code> 雖然是 4-bit（共 7 種模式），但後續運算實質上僅有加、減、直通三種動作。ChatGPT 在 Stage 1 將其精簡壓縮成 <strong>2-bit 的 <code>mode_s1</code></strong>，大幅減少了跨越流水線的暫存器位元數與後端多工解碼邏輯面積。
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <div class="qa-q">Q3: 為什麼 Claude 採用同步重置與 4 級管線？</div>
+        <div class="qa-a">
+            Claude 是唯一嚴格遵循 Xilinx 官方 <em>UG949 UltraFast Design Methodology</em> 的模型。Xilinx 7 系列 Slice Flip-Flop 內部硬體原生支援同步 Set/Reset，採用 <code>always @(posedge clk)</code> 同步重置有利於單元最佳化；額外在 Stage 1 加入輸入隔離暫存（Input Registering）能隔斷外部接腳走線延遲，在超高頻設計時具備最佳時序擴展彈性。
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <div class="qa-q">Q4: 管線化最佳化帶來了什麼工程代價 (Trade-off)？</div>
+        <div class="qa-a">
+            <strong>運算延遲 (Latency) 的轉變：</strong> 原始電路雖然時序崩潰，但在極低時脈下 1 個週期便能產出結果。而 AI 改寫後，運算延遲拉長至 <strong>3 個週期 (GPT/Gemini)</strong> 與 <strong>4 個週期 (Claude)</strong>。在系統層次整合時，工程師必須配合修改上游與下游模組的握手協定（Handshake / Valid 信號），不可盲目直替。
+        </div>
+    </div>
+
+    <!-- 五、 實機截圖佐證庫 -->
+    <h2 class="sec-heading">五、 Vivado 實機合成原始報告截圖庫 (Synthesis Evidence)</h2>
+    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+        所有截圖均取自本地端 ASUS ROG Zephyrus G15 (AMD Ryzen 9 / 16 Parallel Threads) 執行 Vivado 2023.2 之真實合成報表：
+    </p>
+
+    <!-- Baseline 截圖 -->
+    <div class="gallery-block">
+        <div class="gallery-header">
+            <span>1. Baseline (不良風格基準模組) 實測截圖</span>
+            <span class="pill pill-danger">時序嚴重違規 ｜ 567 LUTs</span>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-thumb">
+                <img src="原 程式碼數據/螢幕擷取畫面 2026-10-24 185133.png" alt="Baseline Utilization">
+                <span>資源使用率 (567 LUTs, 2 DSPs)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="原 程式碼數據/螢幕擷取畫面 2026-10-24 185230.png" alt="Baseline Timing">
+                <span>時序分析 (WNS = inf 嚴重違規)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="原 程式碼數據/螢幕擷取畫面 2026-10-24 185315.png" alt="Baseline Power">
+                <span>晶片總功耗 (0.122 W)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini 截圖 -->
+    <div class="gallery-block">
+        <div class="gallery-header">
+            <span>2. Google Gemini 最佳化模組實測截圖</span>
+            <span class="pill pill-success">功耗全場最低 0.115 W ｜ WNS +3.828ns</span>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-thumb">
+                <img src="gemini_alu數據圖/螢幕擷取畫面 2026-10-24 194952.png" alt="Gemini Utilization">
+                <span>資源使用率 (177 LUTs, 1 DSP)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="gemini_alu數據圖/螢幕擷取畫面 2026-10-24 194900.png" alt="Gemini Timing">
+                <span>時序分析 (WNS = +3.828 ns 達標)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="gemini_alu數據圖/螢幕擷取畫面 2026-10-24 195017.png" alt="Gemini Power">
+                <span>晶片總功耗 (0.115 W 最優)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ChatGPT 截圖 -->
+    <div class="gallery-block">
+        <div class="gallery-header">
+            <span>3. OpenAI ChatGPT 最佳化模組實測截圖</span>
+            <span class="pill pill-success">面積全場最省 170 LUTs ｜ WNS +3.828ns</span>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-thumb">
+                <img src="gpt_alu數據圖/螢幕擷取畫面 2026-10-24 200053.png" alt="GPT Utilization">
+                <span>資源使用率 (170 LUTs 最佳)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="gpt_alu數據圖/螢幕擷取畫面 2026-10-24 200024.png" alt="GPT Timing">
+                <span>時序分析 (WNS = +3.828 ns 達標)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="gpt_alu數據圖/螢幕擷取畫面 2026-10-24 200115.png" alt="GPT Power">
+                <span>晶片總功耗 (0.116 W)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claude 截圖 -->
+    <div class="gallery-block">
+        <div class="gallery-header">
+            <span>4. Anthropic Claude 最佳化模組實測截圖</span>
+            <span class="pill pill-info">UG949 同步重置規範 ｜ 96 Registers</span>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-thumb">
+                <img src="claude_alu數據圖/螢幕擷取畫面 2026-10-24 202151.png" alt="Claude Utilization">
+                <span>資源使用率 (194 LUTs, 96 Regs)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="claude_alu數據圖/螢幕擷取畫面 2026-10-24 202131.png" alt="Claude Timing">
+                <span>時序分析 (WNS = +3.828 ns 達標)</span>
+            </div>
+            <div class="gallery-thumb">
+                <img src="claude_alu數據圖/螢幕擷取畫面 2026-10-24 202209.png" alt="Claude Power">
+                <span>晶片總功耗 (0.122 W)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 六、 跨管線驗證機制 -->
+    <h2 class="sec-heading">六、 跨管線週期自動驗證機制 (Testbench Verification)</h2>
+    <p style="font-size: 13.5px; color: #334155;">
+        為驗證重構後電路的計算正確性，特別設計 <code>tb_alu_comparison.v</code>，採用移位暫存器管道（Shift Register Pipeline）推移數學 Golden Model：
+    </p>
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>模組名稱</th>
+                <th>實測管線延遲</th>
+                <th>比對基準</th>
+                <th>驗證判定結果</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>Baseline</strong></td>
                 <td>1 cycle</td>
-                <td>567</td>
-                <td>2</td>
-                <td>16</td>
-                <td class="highlight-fail">inf (違規)</td>
-                <td>崩潰 (&lt;100MHz)</td>
-                <td>0.122</td>
-                <td>未管線化、邏輯深度大、階層多工器鏈</td>
-            </tr>
-            <tr>
-                <td><strong>ChatGPT</strong></td>
-                <td>3 cycles</td>
-                <td class="highlight-win">170 (省 70.0%)</td>
-                <td>1</td>
-                <td>71</td>
-                <td class="highlight-win">+3.828</td>
-                <td>~162.0 MHz</td>
-                <td>0.116</td>
-                <td><strong>LUT 面積冠軍</strong>，狀態編碼壓縮 (2-bit mode)</td>
+                <td>$exp\_pipe[0]$</td>
+                <td><span class="pill pill-success">PASS</span>（數值完全吻合）</td>
             </tr>
             <tr>
                 <td><strong>Gemini</strong></td>
                 <td>3 cycles</td>
-                <td>177</td>
-                <td>1</td>
-                <td>75</td>
-                <td class="highlight-win">+3.828</td>
-                <td>~162.0 MHz</td>
-                <td class="highlight-win">0.115 (最低)</td>
-                <td><strong>功耗控制冠軍</strong>，三級管線結構對稱規整</td>
+                <td>$exp\_pipe[2]$</td>
+                <td><span class="pill pill-success">PASS</span>（數值完全吻合）</td>
+            </tr>
+            <tr>
+                <td><strong>ChatGPT</strong></td>
+                <td>3 cycles</td>
+                <td>$exp\_pipe[2]$</td>
+                <td><span class="pill pill-success">PASS</span>（數值完全吻合）</td>
             </tr>
             <tr>
                 <td><strong>Claude</strong></td>
                 <td>4 cycles</td>
-                <td>194</td>
-                <td>1</td>
-                <td>96</td>
-                <td class="highlight-win">+3.828</td>
-                <td>~162.0 MHz</td>
-                <td>0.122</td>
-                <td><strong>最符 FPGA 規範</strong>，同步重置 + 輸入隔離暫存</td>
+                <td>$exp\_pipe[3]$</td>
+                <td><span class="pill pill-success">PASS</span>（數值完全吻合）</td>
             </tr>
         </tbody>
     </table>
-
-    <h3>PPA 差距量化條形圖表展示</h3>
-    <div class="bar-container">
-[Slice LUTs 面積比較 - 越少越佳]
-Baseline  [567 LUTs]  ██████████████████████████████  100.0%
-ChatGPT   [170 LUTs]  █████████░░░░░░░░░░░░░░░░░░░░░   30.0% 【節省 70.0% 最佳】
-Gemini    [177 LUTs]  █████████░░░░░░░░░░░░░░░░░░░░░   31.2% 【節省 68.8%】
-Claude    [194 LUTs]  ██████████░░░░░░░░░░░░░░░░░░░░   34.2% 【節省 65.8%】
-
-[總晶片功耗比較 - 越低越佳]
-Baseline  [0.122 W]   ████████████████████  100.0%
-ChatGPT   [0.116 W]   ███████████████████░   95.1% 【節能 4.9%】
-Gemini    [0.115 W]   ██████████████████░░   94.3% 【節能 5.7% 最佳】
-Claude    [0.122 W]   ████████████████████  100.0%
+    <div style="background: #e6ffed; border: 1px solid #acf2bd; border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: #1a7f37; font-weight: 600;">
+        ✅ Vivado Behavioral Simulation 模擬完成：All Pipeline Latencies Verified，所有測資 100% 通過斷言比對！
     </div>
 
-    <h2>四、 深度微架構技術剖析</h2>
-    <ul>
-        <li><strong>為什麼三款 AI 的 WNS 剛好都是 +3.828 ns？</strong><br>
-        在 100MHz (10ns) 下，$WNS = +3.828\text{ ns}$ 代表關鍵路徑延遲為 $10 - 3.828 = 6.172\text{ ns}$（等效極限頻率約 162.0 MHz）。三家 AI 在 Stage 2 至 Stage 3 均為「DSP48 乘法 &rarr; Slice 加減選擇 &rarr; 輸出暫存器」。在 Zynq-7000 (-1 速度等級) 下，由專用 DSP 走線至 Slice 的物理傳遞已成為固有瓶頸。Vivado 達成時序收斂（Slack &gt; 0）後即停止進一步優化，因此三者收斂於相同裕度。</li>
-        <li><strong>為什麼 ChatGPT 的 LUT 最省 (170 LUTs)？</strong><br>
-        ChatGPT 在 Stage 1 將 4-bit <code>sel</code> 信號提早壓縮解碼為 2-bit <code>mode_s1</code>（00:加, 01:減, 10:直通），大幅精簡管線暫存器位元數與後端多工器面積。</li>
-        <li><strong>為什麼 Claude 採用同步重置與 4 級管線？</strong><br>
-        Claude 唯一遵循 Xilinx 官方 <em>UG949 UltraFast Design Methodology</em>，使用 <code>always @(posedge clk)</code> 同步重置與輸入隔離暫存，符合 FPGA 原生硬體架構，具備最佳的高頻防禦力。</li>
-    </ul>
-
-    <h2>五、 Vivado 實機合成原始截圖佐證庫 (Synthesis Gallery)</h2>
-
-    <h3>1. Baseline (不良風格基準模組)</h3>
-    <div class="gallery-grid">
-        <div class="gallery-item">
-            <img src="原 程式碼數據/螢幕擷取畫面 2026-10-24 185133.png" alt="Baseline Utilization">
-            <span>資源使用率 (567 LUTs, 2 DSPs)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="原 程式碼數據/螢幕擷取畫面 2026-10-24 185230.png" alt="Baseline Timing">
-            <span>時序分析 (WNS = inf 嚴重違規)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="原 程式碼數據/螢幕擷取畫面 2026-10-24 185315.png" alt="Baseline Power">
-            <span>晶片總功耗 (0.122 W)</span>
-        </div>
-    </div>
-
-    <h3>2. Google Gemini 模組 (0.115 W 功耗最低)</h3>
-    <div class="gallery-grid">
-        <div class="gallery-item">
-            <img src="gemini_alu數據圖/螢幕擷取畫面 2026-10-24 194952.png" alt="Gemini Utilization">
-            <span>資源使用率 (177 LUTs, 1 DSP)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="gemini_alu數據圖/螢幕擷取畫面 2026-10-24 194900.png" alt="Gemini Timing">
-            <span>時序分析 (WNS = +3.828 ns 達標)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="gemini_alu數據圖/螢幕擷取畫面 2026-10-24 195017.png" alt="Gemini Power">
-            <span>晶片總功耗 (0.115 W 全場最佳)</span>
-        </div>
-    </div>
-
-    <h3>3. OpenAI ChatGPT 模組 (170 LUTs 面積最省)</h3>
-    <div class="gallery-grid">
-        <div class="gallery-item">
-            <img src="gpt_alu數據圖/螢幕擷取畫面 2026-10-24 200053.png" alt="GPT Utilization">
-            <span>資源使用率 (170 LUTs 最佳)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="gpt_alu數據圖/螢幕擷取畫面 2026-10-24 200024.png" alt="GPT Timing">
-            <span>時序分析 (WNS = +3.828 ns 達標)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="gpt_alu數據圖/螢幕擷取畫面 2026-10-24 200115.png" alt="GPT Power">
-            <span>晶片總功耗 (0.116 W)</span>
-        </div>
-    </div>
-
-    <h3>4. Anthropic Claude 模組 (同步重置規範)</h3>
-    <div class="gallery-grid">
-        <div class="gallery-item">
-            <img src="claude_alu數據圖/螢幕擷取畫面 2026-10-24 202151.png" alt="Claude Utilization">
-            <span>資源使用率 (194 LUTs, 96 Regs)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="claude_alu數據圖/螢幕擷取畫面 2026-10-24 202131.png" alt="Claude Timing">
-            <span>時序分析 (WNS = +3.828 ns 達標)</span>
-        </div>
-        <div class="gallery-item">
-            <img src="claude_alu數據圖/螢幕擷取畫面 2026-10-24 202209.png" alt="Claude Power">
-            <span>晶片總功耗 (0.122 W)</span>
-        </div>
-    </div>
-
-    <h2>六、 模組 Verilog 原始碼清單</h2>
-    <h3>1. Baseline (不良寫法)</h3>
-    <pre>module bad_coding_style_alu (
-    input wire clk, rst_n,
-    input wire [7:0] a, b, c, d,
-    input wire [3:0] sel,
-    output reg [15:0] result
-);
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) result &lt;= 16'd0;
-        else begin
-            if (sel == 4'b0000) result &lt;= (a * b) + (c * d);
-            else if (sel == 4'b0001) result &lt;= (a * b) - (c * d);
-            else if (sel == 4'b0010) result &lt;= (a * c) + (b * d);
-            else if (sel == 4'b0011) result &lt;= (a * c) - (b * d);
-            else if (sel == 4'b0100) result &lt;= (a * d) + (b * c);
-            else if (sel == 4'b0101) result &lt;= (a + b + c + d) * a;
-            else if (sel == 4'b0110) result &lt;= (a + b + c + d) * b;
-            else result &lt;= 16'd0;
-        end
-    end
-endmodule</pre>
-
-    <h3>2. Google Gemini (3-Stage 管線化)</h3>
-    <pre>module gemini_optimized_alu (
-    input wire clk, rst_n,
-    input wire [7:0] a, b, c, d,
-    input wire [3:0] sel,
-    output reg [15:0] result
-);
-    reg [9:0] op1a; reg [7:0] op1b, op2a, op2b; reg [3:0] sel_st1;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            op1a &lt;= 10'd0; op1b &lt;= 8'd0; op2a &lt;= 8'd0; op2b &lt;= 8'd0; sel_st1 &lt;= 4'd0;
-        end else begin
-            sel_st1 &lt;= sel;
-            case (sel)
-                4'b0000, 4'b0001: begin op1a &lt;= a; op1b &lt;= b; op2a &lt;= c; op2b &lt;= d; end
-                4'b0010, 4'b0011: begin op1a &lt;= a; op1b &lt;= c; op2a &lt;= b; op2b &lt;= d; end
-                4'b0100: begin op1a &lt;= a; op1b &lt;= d; op2a &lt;= b; op2b &lt;= c; end
-                4'b0101: begin op1a &lt;= a + b + c + d; op1b &lt;= a; op2a &lt;= 8'd0; op2b &lt;= 8'd0; end
-                4'b0110: begin op1a &lt;= a + b + c + d; op1b &lt;= b; op2a &lt;= 8'd0; op2b &lt;= 8'd0; end
-                default: begin op1a &lt;= 10'd0; op1b &lt;= 8'd0; op2a &lt;= 8'd0; op2b &lt;= 8'd0; end
-            endcase
-        end
-    end
-
-    reg [15:0] prod1, prod2; reg [3:0] sel_st2;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin prod1 &lt;= 16'd0; prod2 &lt;= 16'd0; sel_st2 &lt;= 4'd0; end
-        else begin prod1 &lt;= op1a * op1b; prod2 &lt;= op2a * op2b; sel_st2 &lt;= sel_st1; end
-    end
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) result &lt;= 16'd0;
-        else begin
-            case (sel_st2)
-                4'b0000, 4'b0010, 4'b0100: result &lt;= prod1 + prod2;
-                4'b0001, 4'b0011:          result &lt;= prod1 - prod2;
-                4'b0101, 4'b0110:          result &lt;= prod1;
-                default:                   result &lt;= 16'd0;
-            endcase
-        end
-    end
-endmodule</pre>
-
-    <h3>3. OpenAI ChatGPT (3-Stage 狀態壓縮)</h3>
-    <pre>module optimized_alu_gpt (
-    input wire clk, rst_n,
-    input wire [7:0] a, b, c, d,
-    input wire [3:0] sel,
-    output reg [15:0] result
-);
-    wire [9:0] sum_all = {2'b0, a} + {2'b0, b} + {2'b0, c} + {2'b0, d};
-    reg [9:0] mul1_a_s1; reg [7:0] mul1_b_s1, mul2_a_s1, mul2_b_s1; reg [1:0] mode_s1;
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            mul1_a_s1 &lt;= 10'd0; mul1_b_s1 &lt;= 8'd0; mul2_a_s1 &lt;= 8'd0; mul2_b_s1 &lt;= 8'd0; mode_s1 &lt;= 2'b11;
-        end else begin
-            case (sel)
-                4'b0000: begin mul1_a_s1 &lt;= {2'b0, a}; mul1_b_s1 &lt;= b; mul2_a_s1 &lt;= c; mul2_b_s1 &lt;= d; mode_s1 &lt;= 2'b00; end
-                4'b0001: begin mul1_a_s1 &lt;= {2'b0, a}; mul1_b_s1 &lt;= b; mul2_a_s1 &lt;= c; mul2_b_s1 &lt;= d; mode_s1 &lt;= 2'b01; end
-                4'b0010: begin mul1_a_s1 &lt;= {2'b0, a}; mul1_b_s1 &lt;= c; mul2_a_s1 &lt;= b; mul2_b_s1 &lt;= d; mode_s1 &lt;= 2'b00; end
-                4'b0011: begin mul1_a_s1 &lt;= {2'b0, a}; mul1_b_s1 &lt;= c; mul2_a_s1 &lt;= b; mul2_b_s1 &lt;= d; mode_s1 &lt;= 2'b01; end
-                4'b0100: begin mul1_a_s1 &lt;= {2'b0, a}; mul1_b_s1 &lt;= d; mul2_a_s1 &lt;= b; mul2_b_s1 &lt;= c; mode_s1 &lt;= 2'b00; end
-                4'b0101: begin mul1_a_s1 &lt;= sum_all; mul1_b_s1 &lt;= a; mul2_a_s1 &lt;= 8'd0; mul2_b_s1 &lt;= 8'd0; mode_s1 &lt;= 2'b10; end
-                4'b0110: begin mul1_a_s1 &lt;= sum_all; mul1_b_s1 &lt;= b; mul2_a_s1 &lt;= 8'd0; mul2_b_s1 &lt;= 8'd0; mode_s1 &lt;= 2'b10; end
-                default: begin mul1_a_s1 &lt;= 10'd0; mul1_b_s1 &lt;= 8'd0; mul2_a_s1 &lt;= 8'd0; mul2_b_s1 &lt;= 8'd0; mode_s1 &lt;= 2'b11; end
-            endcase
-        end
-    end
-
-    reg [17:0] product1_s2; reg [15:0] product2_s2; reg [1:0] mode_s2;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin product1_s2 &lt;= 18'd0; product2_s2 &lt;= 16'd0; mode_s2 &lt;= 2'b11; end
-        else begin product1_s2 &lt;= mul1_a_s1 * mul1_b_s1; product2_s2 &lt;= mul2_a_s1 * mul2_b_s1; mode_s2 &lt;= mode_s1; end
-    end
-
-    wire [18:0] add_value = {1'b0, product1_s2} + {3'b0, product2_s2};
-    wire [18:0] sub_value = {1'b0, product1_s2} - {3'b0, product2_s2};
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) result &lt;= 16'd0;
-        else begin
-            case (mode_s2)
-                2'b00: result &lt;= add_value[15:0];
-                2'b01: result &lt;= sub_value[15:0];
-                2'b10: result &lt;= product1_s2[15:0];
-                default: result &lt;= 16'd0;
-            endcase
-        end
-    end
-endmodule</pre>
-
-    <h3>4. Anthropic Claude (4-Stage 同步重置)</h3>
-    <pre>module optimized_alu_claude (
-    input wire clk, rst_n,
-    input wire [7:0] a, b, c, d,
-    input wire [3:0] sel,
-    output reg [15:0] result
-);
-    reg [7:0] a_s1, b_s1, c_s1, d_s1; reg [3:0] sel_s1; reg [9:0] sum_s1;
-    always @(posedge clk) begin
-        if (!rst_n) begin a_s1&lt;=0; b_s1&lt;=0; c_s1&lt;=0; d_s1&lt;=0; sel_s1&lt;=0; sum_s1&lt;=0; end
-        else begin a_s1&lt;=a; b_s1&lt;=b; c_s1&lt;=c; d_s1&lt;=d; sel_s1&lt;=sel; sum_s1&lt;=a+b+c+d; end
-    end
-
-    reg [9:0] m1_x; reg [7:0] m1_y, m2_x, m2_y; reg do_sub;
-    always @(posedge clk) begin
-        if (!rst_n) begin m1_x&lt;=0; m1_y&lt;=0; m2_x&lt;=0; m2_y&lt;=0; do_sub&lt;=0; end
-        else begin
-            case (sel_s1)
-                4'b0000: begin m1_x&lt;={2'b0, a_s1}; m1_y&lt;=b_s1; m2_x&lt;=c_s1; m2_y&lt;=d_s1; do_sub&lt;=0; end
-                4'b0001: begin m1_x&lt;={2'b0, a_s1}; m1_y&lt;=b_s1; m2_x&lt;=c_s1; m2_y&lt;=d_s1; do_sub&lt;=1; end
-                4'b0010: begin m1_x&lt;={2'b0, a_s1}; m1_y&lt;=c_s1; m2_x&lt;=b_s1; m2_y&lt;=d_s1; do_sub&lt;=0; end
-                4'b0011: begin m1_x&lt;={2'b0, a_s1}; m1_y&lt;=c_s1; m2_x&lt;=b_s1; m2_y&lt;=d_s1; do_sub&lt;=1; end
-                4'b0100: begin m1_x&lt;={2'b0, a_s1}; m1_y&lt;=d_s1; m2_x&lt;=b_s1; m2_y&lt;=c_s1; do_sub&lt;=0; end
-                4'b0101: begin m1_x&lt;=sum_s1; m1_y&lt;=a_s1; m2_x&lt;=0; m2_y&lt;=0; do_sub&lt;=0; end
-                4'b0110: begin m1_x&lt;=sum_s1; m1_y&lt;=b_s1; m2_x&lt;=0; m2_y&lt;=0; do_sub&lt;=0; end
-                default: begin m1_x&lt;=0; m1_y&lt;=0; m2_x&lt;=0; m2_y&lt;=0; do_sub&lt;=0; end
-            endcase
-        end
-    end
-
-    reg [15:0] p1, p2; reg do_sub_s3;
-    wire [17:0] p1_full = m1_x * m1_y; wire [15:0] p2_full = m2_x * m2_y;
-    always @(posedge clk) begin
-        if (!rst_n) begin p1&lt;=0; p2&lt;=0; do_sub_s3&lt;=0; end
-        else begin p1&lt;=p1_full[15:0]; p2&lt;=p2_full; do_sub_s3&lt;=do_sub; end
-    end
-
-    always @(posedge clk) begin
-        if (!rst_n) result &lt;= 16'd0;
-        else result &lt;= do_sub_s3 ? (p1 - p2) : (p1 + p2);
-    end
-endmodule</pre>
-
-    <h2>七、 結論與微架構設計評鑑</h2>
-    <table>
+    <!-- 七、 結論與建議 -->
+    <h2 class="sec-heading">七、 結論與生成式 AI 輔助硬體設計建議</h2>
+    <table class="custom-table">
         <thead>
             <tr>
-                <th>評測維度</th>
-                <th>🥇 ChatGPT (OpenAI)</th>
-                <th>🥈 Gemini (Google)</th>
-                <th>🥉 Claude (Anthropic)</th>
+                <th style="width: 20%;">評估維度</th>
+                <th style="width: 26%;">🥇 ChatGPT (OpenAI)</th>
+                <th style="width: 27%;">🥈 Gemini (Google)</th>
+                <th style="width: 27%;">🥉 Claude (Anthropic)</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>面積最佳化 (LUT)</strong></td>
-                <td>⭐⭐⭐⭐⭐ (冠軍 170 LUTs)</td>
+                <td>⭐⭐⭐⭐⭐ <strong>(冠軍 170 LUTs)</strong></td>
                 <td>⭐⭐⭐⭐☆ (177 LUTs)</td>
                 <td>⭐⭐⭐☆☆ (194 LUTs)</td>
             </tr>
             <tr>
                 <td><strong>低功耗表現 (Power)</strong></td>
                 <td>⭐⭐⭐⭐☆ (0.116 W)</td>
-                <td>⭐⭐⭐⭐⭐ (冠軍 0.115 W)</td>
+                <td>⭐⭐⭐⭐⭐ <strong>(冠軍 0.115 W)</strong></td>
                 <td>⭐⭐⭐☆☆ (0.122 W)</td>
             </tr>
             <tr>
-                <td><strong>FPGA 規範性 (Coding)</strong></td>
+                <td><strong>FPGA 規範性 (Style)</strong></td>
                 <td>⭐⭐⭐⭐☆ (非同步重置)</td>
                 <td>⭐⭐⭐⭐☆ (非同步重置)</td>
-                <td>⭐⭐⭐⭐⭐ (冠軍 同步重置 UG949)</td>
+                <td>⭐⭐⭐⭐⭐ <strong>(冠軍 同步重置+UG949)</strong></td>
             </tr>
             <tr>
-                <td><strong>運算延遲代價 (Latency)</strong></td>
+                <td><strong>運算延遲開銷</strong></td>
                 <td>3 cycles</td>
                 <td>3 cycles</td>
                 <td>4 cycles</td>
             </tr>
             <tr>
-                <td><strong>微架構亮點</strong></td>
+                <td><strong>微架構最大亮點</strong></td>
                 <td>狀態壓縮編碼 (2-bit mode)</td>
                 <td>對稱直觀切分，切換率最低</td>
                 <td>輸入隔離暫存，防禦性最高</td>
             </tr>
             <tr>
-                <td><strong>最佳適用場景</strong></td>
-                <td><strong>ASIC/FPGA 面積受限極致設計</strong></td>
+                <td><strong>最佳適用專案場景</strong></td>
+                <td><strong>ASIC/FPGA 面積資源極度受限設計</strong></td>
                 <td><strong>低功耗 IoT / 行動端晶片設計</strong></td>
-                <td><strong>超高頻通訊與嚴格 FPGA 規範</strong></td>
+                <td><strong>超高頻通訊與嚴格 FPGA 規範專案</strong></td>
             </tr>
         </tbody>
     </table>
 
-    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #d0d7de; font-size: 13px; color: #57606a; text-align: center;">
-        報告學號：7114068027 ｜ 測試晶片：Xilinx Zynq-7000 xc7z020 ｜ Vivado 2023.2 驗證完成
+    <div style="margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); text-align: center;">
+        報告學號：<strong>7114068027</strong> ｜ 目標晶片：Xilinx Zynq-7000 (xc7z020) ｜ Vivado 2023.2 實機驗證完成
     </div>
+
 </div>
 
 </body>

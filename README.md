@@ -180,12 +180,11 @@ graph TD
 | 檔案名稱 | 說明 | 格式與用途 |
 | :--- | :--- | :--- |
 | 📝 [**7114068027_HW1_正式作業報告.doc**](./7114068027_HW1_%E6%AD%A3%E5%BC%8F%E4%BD%9C%E6%A5%AD%E5%A0%B1%E5%91%8A.doc) | **標準繳交用 Word 報告** | 包含論文級封面、自動分頁、精緻三線表與實測截圖，可直接開啟編輯繳交 |
-| 📄 [**7114068027.md**](./7114068027.md) | **正式作業總結報告（以學號命名）** | Markdown 正式報告，包含微架構、PPA、問答與程式碼 |
+| 📄 [**7114068027.md**](./7114068027.md) | **正式作業總結報告（以學號命名）** | Markdown 正式報告，包含微架構、PPA、問答與檔案索引 |
 | 🌐 [**7114068027.html**](./7114068027.html) | **網頁版高解析度報告** | 內建 A4 列印樣式與即時預覽，支援一鍵另存為 PDF |
 | 📑 [**7114068027.pdf**](./7114068027.pdf) | **正式列印版 PDF 成果報告** | 方便直接繳交給教授與列印檢視 |
 | 📝 [**HW1_Report.md**](./HW1_Report.md) | 作業一專案分析技術報告 | 深入微架構機理與 EDA 走線極限剖析 |
 | 📘 [**README.md**](./README.md) | GitHub 專案首頁說明文件 | 提供完整量化圖表、截圖畫廊與成果展示 |
-
 
 ---
 
@@ -223,16 +222,26 @@ graph TD
 
 ---
 
-## 💻 七、 模組 Verilog 完整程式碼清單 (Verilog Source Codes)
+## 💻 七、 四大微架構重構特徵與檔案對照
 
-### 1. 基準模組：不良寫法 (Baseline - 1-Cycle Unpipelined)
-> 📄 檔案位置：[`bad_coding_style_alu.v`](./bad_coding_style_alu.v)  
-> ⚠️ 特徵：單一週期硬塞所有運算、長串 `if-else` 階層多工器、算術運算未共享，時序嚴重違規 (`WNS = inf`)。
+為維持報告之視覺美感與專注於硬體架構剖析，完整 Verilog 程式碼已獨立儲存於各原始碼檔案中。下表彙整各架構之關鍵微架構差異與技術對照：
 
+| 模組版本 | 原始碼檔案連結 | 流水線級數 | 重置機制 | 輸入隔離暫存 | 關鍵路徑最佳化策略 | 主要優缺點權衡 |
+
+| :--- | :--- | :---: | :---: | :---: | :--- | :--- |
+| **Baseline** | [`bad_coding_style_alu.v`](./bad_coding_style_alu.v) | 1-cycle (無) | 非同步 Active-Low | 無 | ❌ 未做任何管線切割，單一週期硬塞所有運算 | 邏輯深度極深，100MHz 下嚴重時序違規 ($WNS = \text{inf}$) |
+| **ChatGPT** | [`optimized_alu_gpt.v`](./optimized_alu_gpt.v) | 3-Stage | 非同步 Active-Low | 無 | Stage 1 路由 & 前置加法；Stage 2 乘法；Stage 3 加減 | 🥇 **面積最佳**：4-bit `sel` 壓縮為 2-bit `mode`，LUT 僅需 170 |
+| **Gemini** | [`gemini_optimized_alu.v`](./gemini_optimized_alu.v) | 3-Stage | 非同步 Active-Low | 無 | 路由與預加法 &rarr; 乘法共享 &rarr; 加減運算輸出 | 🥇 **功耗最佳**：結構高度對稱規整，切換率最低 (0.115W) |
+| **Claude** | [`optimized_alu_claude.v`](./optimized_alu_claude.v) | 4-Stage | **同步 Active-Low (UG949)** | **有 (Stage 1)** | 隔離暫存 &rarr; 運算路由 &rarr; 乘法核心 &rarr; 加減選擇 | 🥇 **規範最佳**：原生符合 Xilinx 架構，但暫存器開銷較大 (96 Regs) |
+| **Testbench** | [`tb_alu_comparison.v`](./tb_alu_comparison.v) | 跨週期比對 | 非同步 Active-Low | - | 移位暫存器管道同步驗證 1/3/4 cycle 數學 Golden Model | 自動斷言檢驗，100% 通過 Behavioral Simulation 比對 |
+
+<details>
+<summary><b>🔍 點擊展開檢閱各模組 Verilog 原始碼清單（折疊區塊）</b></summary>
+
+### 1. 基準模組 (bad_coding_style_alu.v)
 ```verilog
 module bad_coding_style_alu (
-    input wire clk,
-    input wire rst_n,
+    input wire clk, rst_n,
     input wire [7:0] a, b, c, d,
     input wire [3:0] sel,
     output reg [15:0] result
@@ -253,21 +262,14 @@ module bad_coding_style_alu (
 endmodule
 ```
 
----
-
-### 2. Google Gemini：最佳化 3 級管線 (Gemini - 3-Stage Pipelined)
-> 📄 檔案位置：[`gemini_optimized_alu.v`](./gemini_optimized_alu.v)  
-> 🏆 特徵：功耗冠軍 (**0.115 W**)、三級管線結構對稱整潔、切換活動率最低。
-
+### 2. Google Gemini (gemini_optimized_alu.v)
 ```verilog
 module gemini_optimized_alu (
-    input wire clk,
-    input wire rst_n,
+    input wire clk, rst_n,
     input wire [7:0] a, b, c, d,
     input wire [3:0] sel,
     output reg [15:0] result
 );
-    // Stage 1: Operand Routing & Pre-addition
     reg [9:0] op1a; reg [7:0] op1b, op2a, op2b; reg [3:0] sel_st1;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -285,14 +287,12 @@ module gemini_optimized_alu (
         end
     end
 
-    // Stage 2: Multiplier Resource Sharing
     reg [15:0] prod1, prod2; reg [3:0] sel_st2;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin prod1 <= 16'd0; prod2 <= 16'd0; sel_st2 <= 4'd0; end
         else begin prod1 <= op1a * op1b; prod2 <= op2a * op2b; sel_st2 <= sel_st1; end
     end
 
-    // Stage 3: Post-Addition/Subtraction
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) result <= 16'd0;
         else begin
@@ -307,12 +307,7 @@ module gemini_optimized_alu (
 endmodule
 ```
 
----
-
-### 3. OpenAI ChatGPT：最佳化 3 級管線 (ChatGPT - 3-Stage Pipelined)
-> 📄 檔案位置：[`optimized_alu_gpt.v`](./optimized_alu_gpt.v)  
-> 🏆 特徵：面積冠軍 (**170 LUTs，省 70.0%**)、狀態編碼壓縮 (將 4-bit `sel` 壓縮為 2-bit `mode`)、顯式位元擴展防溢位。
-
+### 3. OpenAI ChatGPT (optimized_alu_gpt.v)
 ```verilog
 module optimized_alu_gpt (
     input wire clk, rst_n,
@@ -362,12 +357,7 @@ module optimized_alu_gpt (
 endmodule
 ```
 
----
-
-### 4. Anthropic Claude：最佳化 4 級管線 (Claude - 4-Stage Pipelined)
-> 📄 檔案位置：[`optimized_alu_claude.v`](./optimized_alu_claude.v)  
-> 🛡️ 特徵：FPGA 標準規範冠軍、**同步重置 (UG949 規範)**、Stage 1 專門設置輸入隔離暫存器 (Input Registering)。
-
+### 4. Anthropic Claude (optimized_alu_claude.v)
 ```verilog
 module optimized_alu_claude (
     input wire clk, rst_n,
@@ -375,17 +365,46 @@ module optimized_alu_claude (
     input wire [3:0] sel,
     output reg [15:0] result
 );
-    // Stage 1: 輸入隔離暫存 (Input Registering) & 前置加法
     reg [7:0] a_s1, b_s1, c_s1, d_s1; reg [3:0] sel_s1; reg [9:0] sum_s1;
     always @(posedge clk) begin
         if (!rst_n) begin a_s1<=0; b_s1<=0; c_s1<=0; d_s1<=0; sel_s1<=0; sum_s1<=0; end
         else begin a_s1<=a; b_s1<=b; c_s1<=c; d_s1<=d; sel_s1<=sel; sum_s1<=a+b+c+d; end
     end
 
-    // Stage 2: 運算元選擇與減法控制標誌
     reg [9:0] m1_x; reg [7:0] m1_y, m2_x, m2_y; reg do_sub;
     always @(posedge clk) begin
         if (!rst_n) begin m1_x<=0; m1_y<=0; m2_x<=0; m2_y<=0; do_sub<=0; end
+        else begin
+            case (sel_s1)
+                4'b0000: begin m1_x<={2'b0, a_s1}; m1_y<=b_s1; m2_x<=c_s1; m2_y<=d_s1; do_sub<=0; end
+                4'b0001: begin m1_x<={2'b0, a_s1}; m1_y<=b_s1; m2_x<=c_s1; m2_y<=d_s1; do_sub<=1; end
+                4'b0010: begin m1_x<={2'b0, a_s1}; m1_y<=c_s1; m2_x<=b_s1; m2_y<=d_s1; do_sub<=0; end
+                4'b0011: begin m1_x<={2'b0, a_s1}; m1_y<=c_s1; m2_x<=b_s1; m2_y<=d_s1; do_sub<=1; end
+                4'b0100: begin m1_x<={2'b0, a_s1}; m1_y<=d_s1; m2_x<=b_s1; m2_y<=c_s1; do_sub<=0; end
+                4'b0101: begin m1_x<=sum_s1; m1_y<=a_s1; m2_x<=0; m2_y<=0; do_sub<=0; end
+                4'b0110: begin m1_x<=sum_s1; m1_y<=b_s1; m2_x<=0; m2_y<=0; do_sub<=0; end
+                default: begin m1_x<=0; m1_y<=0; m2_x<=0; m2_y<=0; do_sub<=0; end
+            endcase
+        end
+    end
+
+    reg [15:0] p1, p2; reg do_sub_s3;
+    wire [17:0] p1_full = m1_x * m1_y; wire [15:0] p2_full = m2_x * m2_y;
+    always @(posedge clk) begin
+        if (!rst_n) begin p1<=0; p2<=0; do_sub_s3<=0; end
+        else begin p1<=p1_full[15:0]; p2<=p2_full; do_sub_s3<=do_sub; end
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) result <= 16'd0;
+        else result <= do_sub_s3 ? (p1 - p2) : (p1 + p2);
+    end
+endmodule
+```
+</details>
+
+---
+ m1_y<=0; m2_x<=0; m2_y<=0; do_sub<=0; end
         else begin
             case (sel_s1)
                 4'b0000: begin m1_x<={2'b0, a_s1}; m1_y<=b_s1; m2_x<=c_s1; m2_y<=d_s1; do_sub<=0; end
