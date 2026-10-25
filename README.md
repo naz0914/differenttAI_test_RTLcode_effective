@@ -1,12 +1,15 @@
 # 🔬 評估三大生成式 AI 最佳化 RTL Synthesis Coding Style 之硬體效能 (PPA)
 
+> **學生學號：** `7114068027`  
 > **課程作業：** Homework 1: 驗證不同的生成式 AI (Generative AI) 對於更正 (最佳化) RTL Synthesis Coding Style 的效能  
+> **正式報告：** 📄 [7114068027.md](./7114068027.md) ｜ 🌐 [7114068027.html](./7114068027.html) ｜ 📑 [7114068027.pdf](./7114068027.pdf)  
 > **目標晶片：** Xilinx Zynq-7000 FPGA (`xc7z020clg400-1`)  
 > **EDA 工具：** Xilinx Vivado 2023.2 (16 Parallel Threads 本地編譯)  
 > **時序約束：** 100MHz (Period: 10.000 ns, Setup WNS $\ge 0\text{ ns}$)  
 > **評測對象：** OpenAI **ChatGPT** vs Google **Gemini** vs Anthropic **Claude**  
 
 ---
+
 
 ## 📋 教授指定實驗步驟達成檢核清單
 
@@ -168,14 +171,49 @@ graph TD
 
 ---
 
-## 🛠️ 六、 檔案清單與模擬驗證指引
+## 🛠️ 六、 專案檔案清單與目錄指引 (Repository File Inventory)
 
-* [`bad_coding_style_alu.v`](./bad_coding_style_alu.v) : 原始未管線化 Baseline 模組
-* [`gemini_optimized_alu.v`](./gemini_optimized_alu.v) : Google Gemini 最佳化 3-Stage 模組
-* [`optimized_alu_gpt.v`](./optimized_alu_gpt.v) : OpenAI ChatGPT 最佳化 3-Stage 模組
-* [`optimized_alu_claude.v`](./optimized_alu_claude.v) : Anthropic Claude 最佳化 4-Stage 模組
-* [`tb_alu_comparison.v`](./tb_alu_comparison.v) : **跨管線自動比對驗證 Testbench**（自動依據 1/3/4 cycle 延遲比對數學 Golden Model）
-* [`HW1_Report.md`](./HW1_Report.md) : 詳細文字作業報告（含 EDA 機制與微架構深入剖析）
+本儲存庫包含完整的作業成果報告、Verilog 硬體原始碼、自動比對驗證平台與 Vivado 實測報告截圖：
+
+### 1. 📄 正式作業報告與文件 (Homework Reports)
+| 檔案名稱 | 說明 | 格式與用途 |
+| :--- | :--- | :--- |
+| 📄 [**7114068027.md**](./7114068027.md) | **正式作業總結報告（以學號命名）** | Markdown 正式報告，包含微架構、PPA、問答與程式碼 |
+| 🌐 [**7114068027.html**](./7114068027.html) | **網頁版高解析度報告** | 內建 A4 列印樣式與即時預覽，支援一鍵另存為 PDF |
+| 📑 [**7114068027.pdf**](./7114068027.pdf) | **正式列印版 PDF 成果報告** | 方便直接繳交給教授與列印檢視 |
+| 📝 [**HW1_Report.md**](./HW1_Report.md) | 作業一專案分析技術報告 | 深入微架構機理與 EDA 走線極限剖析 |
+| 📘 [**README.md**](./README.md) | GitHub 專案首頁說明文件 | 提供完整量化圖表、截圖畫廊與成果展示 |
+
+---
+
+### 2. 🔌 Verilog 硬體電路模組 (RTL Source Codes)
+* [`bad_coding_style_alu.v`](./bad_coding_style_alu.v) : 原始未管線化 Baseline 不良寫法模組 (1-Cycle)
+* [`gemini_optimized_alu.v`](./gemini_optimized_alu.v) : Google Gemini 最佳化之 3-Stage 對稱流水線 ALU (低功耗冠軍 0.115W)
+* [`optimized_alu_gpt.v`](./optimized_alu_gpt.v) : OpenAI ChatGPT 最佳化之 3-Stage 狀態壓縮 ALU (面積冠軍 170 LUTs)
+* [`optimized_alu_claude.v`](./optimized_alu_claude.v) : Anthropic Claude 最佳化之 4-Stage 同步重置 ALU (UG949 規範冠軍)
+
+---
+
+### 3. 🧪 驗證與自動比對平台 (Simulation & Testbench)
+* [`tb_alu_comparison.v`](./tb_alu_comparison.v) : **跨管線自動比對驗證 Testbench**（利用移位暫存器同步驗證 1-cycle、3-cycle、4-cycle 延遲之數學 Golden Model 正確性）
+* [`tb_alu.v`](./tb_alu.v) : 單元功能驗證 Testbench
+
+---
+
+### 4. 📷 Vivado 實測截圖數據庫 (Synthesis Screenshot Galleries)
+* 📁 [`原 程式碼數據/`](./原%20程式碼數據/) : Baseline 資源使用率、時序分析 (WNS=inf)、功耗報告截圖
+* 📁 [`gemini_alu數據圖/`](./gemini_alu數據圖/) : Gemini 資源使用率、時序分析 (+3.828ns)、功耗報告截圖
+* 📁 [`gpt_alu數據圖/`](./gpt_alu數據圖/) : ChatGPT 資源使用率、時序分析 (+3.828ns)、功耗報告截圖
+* 📁 [`claude_alu數據圖/`](./claude_alu數據圖/) : Claude 資源使用率、時序分析 (+3.828ns)、功耗報告截圖
+
+---
+
+### 5. ⚡ 實用自動化腳本工具 (Automation Tools)
+* [`convert_to_pdf.bat`](./convert_to_pdf.bat) : 呼叫 Windows 內建 Edge 引擎，一鍵將 HTML 轉為正式 `7114068027.pdf`
+* [`start_auto_sync.bat`](./start_auto_sync.bat) : 背景自動同步啟動器，監聽目錄檔案變更並自動 push 至 GitHub
+* [`auto_git_sync.ps1`](./auto_git_sync.ps1) : PowerShell 自動 Git 監聽引擎
+
+---
 
 ### 模擬驗證執行：
 在 Vivado 中將 `tb_alu_comparison.v` 設為 Simulation Top，點擊 **Run Behavioral Simulation**，即可在波形視窗中一覽四個模組在不同管線週期下的輸出比對狀態。
